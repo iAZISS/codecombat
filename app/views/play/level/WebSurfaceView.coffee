@@ -7,6 +7,8 @@ module.exports = class WebSurfaceView extends CocoView
 
   subscriptions:
     'tome:html-updated': 'onHTMLUpdated'
+    'web-dev:extracted-css-selectors': 'onExtractedCssSelectors'
+    'spell:hover-line': 'onHoverLine'
 
   initialize: (options) ->
     @goals = (goal for goal in options.goalManager?.goals ? [] when goal.html)
@@ -81,6 +83,14 @@ module.exports = class WebSurfaceView extends CocoView
       deku.element(type, {})
     else
       deku.element(type, {}, children)
+
+  onExtractedCssSelectors: ({ @cssSelectors }) ->
+
+  onHoverLine: ({ row, line }) ->
+    hoveredCssSelector = _.find @cssSelectors, (selector) ->
+      line.indexOf(selector) > -1
+    @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
+    null
 
   onIframeMessage: (event) =>
     origin = event.origin or event.originalEvent.origin

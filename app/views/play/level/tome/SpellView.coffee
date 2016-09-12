@@ -13,6 +13,7 @@ UserCodeProblem = require 'models/UserCodeProblem'
 utils = require 'core/utils'
 CodeLog = require 'models/CodeLog'
 Autocomplete = require './editor/autocomplete'
+TokenIterator = ace.require('ace/token_iterator').TokenIterator
 
 module.exports = class SpellView extends CocoView
   id: 'spell-view'
@@ -113,6 +114,7 @@ module.exports = class SpellView extends CocoView
     @ace.setShowFoldWidgets false
     @ace.setKeyboardHandler @keyBindings[aceConfig.keyBindings ? 'default']
     @ace.$blockScrolling = Infinity
+    @ace.on 'mousemove', @onMouseMove
     @toggleControls null, @writable
     @aceSession.selection.on 'changeCursor', @onCursorActivity
     $(@ace.container).find('.ace_gutter').on 'click mouseenter', '.ace_error, .ace_warning, .ace_info', @onAnnotationClick
@@ -994,6 +996,30 @@ module.exports = class SpellView extends CocoView
   onSpellChanged: (e) ->
     # TODO: Merge with updateHTML
     @spellHasChanged = true
+
+    # TODO: Move this hack for extracting CSS selectors
+    rawCss = @spell.getSource().match(/<style>([\s\S]*)<\/style>/)[1]
+    parsedCss = parseAStylesheet(rawCss)
+    cssSelectors = parsedCss.value.map (qualifiedRule) =>
+      selector = qualifiedRule.prelude.map (token) ->
+        if token instanceof WhitespaceToken
+          return " "
+        else
+          return token.value
+      .join("")
+    # TODO: just do this in WebSurfaceView.onHoverLine?
+    jQuerySelectors = @spell.getSource().match(/\$\(\s*['"](.*)['"]\s*\)/g).map (jQueryCall) ->
+      jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
+    console.log jQuerySelectors
+    Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
+    null
+
+  onMouseMove: (e) =>
+    return if @destroyed
+    pos = e.getDocumentPosition()
+    line = @aceSession.getLine(pos.row)
+    Backbone.Mediator.publish("spell:hover-line", { row: pos.row, line })
+    null
 
   onSessionWillSave: (e) ->
     return unless @spellHasChanged and me.isAdmin()
