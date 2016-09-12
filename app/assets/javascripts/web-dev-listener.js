@@ -51,7 +51,7 @@ function receiveMessage(event) {
         break;
     case 'highlight-css-selector':
         $("*").css("box-shadow", "")
-        $(data.selector).css("box-shadow", "inset 0 0 0 10000px rgba(255, 255, 0, 1)")
+        $(data.selector).css("box-shadow", "inset 0 0 2px 3px rgba(255, 255, 0, 1.0)")
         break;
     case 'log':
         console.log(data.text);
