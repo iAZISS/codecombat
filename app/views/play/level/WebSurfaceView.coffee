@@ -9,6 +9,7 @@ module.exports = class WebSurfaceView extends CocoView
     'tome:html-updated': 'onHTMLUpdated'
     'web-dev:extracted-css-selectors': 'onExtractedCssSelectors'
     'web-dev:hover-line': 'onHoverLine'
+    'web-dev:stop-hovering-line': 'onStopHoveringLine'
 
   initialize: (options) ->
     @goals = (goal for goal in options.goalManager?.goals ? [] when goal.html)
@@ -33,7 +34,7 @@ module.exports = class WebSurfaceView extends CocoView
       @onIframeLoaded = null
 
   # TODO: make clicking Run actually trigger a 'create' update here (for resetting scripts)
-        
+
   onHTMLUpdated: (e) ->
     unless @iframeLoaded
       return @onIframeLoaded = => @onHTMLUpdated e unless @destroyed
@@ -115,11 +116,13 @@ module.exports = class WebSurfaceView extends CocoView
     jQuerySelectors = (html.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
       # Extract the argument (because capture groups don't work with /g)
       jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
-    console.log cssSelectors.concat(jQuerySelectors)
     Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
     null
 
   onExtractedCssSelectors: ({ @cssSelectors }) ->
+
+  onStopHoveringLine: ->
+    @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: '' }, '*')
 
   onHoverLine: ({ row, line }) ->
     if _.contains(@rawCssLines, line)
@@ -128,7 +131,6 @@ module.exports = class WebSurfaceView extends CocoView
       hoveredCssSelector = _.find @cssSelectors, (selector) ->
         trimLine is selector
       @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
-      console.log {hoveredCssSelector, @cssSelectors}
     else
       # They're not hovering over CSS, so don't highlight anything
       @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: '' }, '*')

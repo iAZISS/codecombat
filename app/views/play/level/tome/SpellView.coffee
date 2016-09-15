@@ -39,7 +39,6 @@ module.exports = class SpellView extends CocoView
     'god:non-user-code-problem': 'onNonUserCodeProblem'
     'tome:manual-cast': 'onManualCast'
     'tome:reload-code': 'onCodeReload'
-    'tome:spell-created': 'onSpellCreated'
     'tome:spell-changed': 'onSpellChanged'
     'level:session-will-save': 'onSessionWillSave'
     'modal:closed': 'focus'
@@ -57,7 +56,6 @@ module.exports = class SpellView extends CocoView
     'level:contact-button-pressed': 'onContactButtonPressed'
     'level:show-victory': 'onShowVictory'
     'web-dev:error': 'onWebDevError'
-    'web-surface:initialized': 'onWebSurfaceInitialized'
 
   events:
     'mouseout': 'onMouseOut'
@@ -116,7 +114,8 @@ module.exports = class SpellView extends CocoView
     @ace.setShowFoldWidgets false
     @ace.setKeyboardHandler @keyBindings[aceConfig.keyBindings ? 'default']
     @ace.$blockScrolling = Infinity
-    @ace.on 'mousemove', @onMouseMove
+    @ace.on 'mousemove', @onAceMouseMove
+    @ace.on 'mouseout', @onAceMouseOut
     @toggleControls null, @writable
     @aceSession.selection.on 'changeCursor', @onCursorActivity
     $(@ace.container).find('.ace_gutter').on 'click mouseenter', '.ace_error, .ace_warning, .ace_info', @onAnnotationClick
@@ -995,40 +994,14 @@ module.exports = class SpellView extends CocoView
     for key, value of oldSpellThangAether
       @spell.thang.aether[key] = value
 
-  onSpellCreated: () ->
-    @extractCssSelectors()
-
-  onWebSurfaceInitialized: () ->
-    console.log "Web surface initialized!"
-    @extractCssSelectors()
-
   onSpellChanged: (e) ->
     # TODO: Merge with updateHTML
     @spellHasChanged = true
-    @extractCssSelectors()
 
-  extractCssSelectors: ->
-    console.log "Extracting CSS selectors!"
-    # TODO: Move this hack for extracting CSS selectors
-    rawCss = @spell.getSource().match(/<style>((?!<\/?style>).*)<\/style>/)?[1] or ''
-    parsedCss = parseAStylesheet(rawCss) # TODO: Don't put this in the global namespace
-    cssSelectors = parsedCss.value.map (qualifiedRule) =>
-      qualifiedRule.prelude.map (token) ->
-        if token instanceof WhitespaceToken
-          return " "
-        else
-          return token.value
-      .join("").trim()
-    # TODO: just do this in WebSurfaceView.onHoverLine?
-    # Find all calls to $("...")
-    jQuerySelectors = (@spell.getSource().match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
-      # Extract the argument (because capture groups don't work with /g)
-      jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
-    console.log cssSelectors.concat(jQuerySelectors)
-    Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
-    null
+  onAceMouseOut: (e) ->
+    Backbone.Mediator.publish("web-dev:stop-hovering-line")
 
-  onMouseMove: (e) =>
+  onAceMouseMove: (e) =>
     return if @destroyed
     pos = e.getDocumentPosition()
     line = @aceSession.getLine(pos.row)
