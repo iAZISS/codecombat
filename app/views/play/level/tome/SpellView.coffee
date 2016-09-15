@@ -39,6 +39,7 @@ module.exports = class SpellView extends CocoView
     'god:non-user-code-problem': 'onNonUserCodeProblem'
     'tome:manual-cast': 'onManualCast'
     'tome:reload-code': 'onCodeReload'
+    'tome:spell-created': 'onSpellCreated'
     'tome:spell-changed': 'onSpellChanged'
     'level:session-will-save': 'onSessionWillSave'
     'modal:closed': 'focus'
@@ -56,6 +57,7 @@ module.exports = class SpellView extends CocoView
     'level:contact-button-pressed': 'onContactButtonPressed'
     'level:show-victory': 'onShowVictory'
     'web-dev:error': 'onWebDevError'
+    'web-surface:initialized': 'onWebSurfaceInitialized'
 
   events:
     'mouseout': 'onMouseOut'
@@ -993,10 +995,20 @@ module.exports = class SpellView extends CocoView
     for key, value of oldSpellThangAether
       @spell.thang.aether[key] = value
 
+  onSpellCreated: () ->
+    @extractCssSelectors()
+
+  onWebSurfaceInitialized: () ->
+    console.log "Web surface initialized!"
+    @extractCssSelectors()
+
   onSpellChanged: (e) ->
     # TODO: Merge with updateHTML
     @spellHasChanged = true
+    @extractCssSelectors()
 
+  extractCssSelectors: ->
+    console.log "Extracting CSS selectors!"
     # TODO: Move this hack for extracting CSS selectors
     rawCss = @spell.getSource().match(/<style>([\s\S]*)<\/style>/)?[1] or ''
     parsedCss = parseAStylesheet(rawCss) # TODO: Don't put this in the global namespace
@@ -1019,7 +1031,7 @@ module.exports = class SpellView extends CocoView
     return if @destroyed
     pos = e.getDocumentPosition()
     line = @aceSession.getLine(pos.row)
-    Backbone.Mediator.publish("spell:hover-line", { row: pos.row, line })
+    Backbone.Mediator.publish("web-dev:hover-line", { row: pos.row, line })
     null
 
   onSessionWillSave: (e) ->

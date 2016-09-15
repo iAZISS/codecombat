@@ -15,6 +15,11 @@ module.exports = class WebSurfaceView extends CocoView
     # Consider https://www.npmjs.com/package/css-select to do this on virtualDom instead of in iframe on concreteDOM
     super(options)
 
+  constructor: ->
+    super(arguments...)
+    # Make sure SpellView extracts CSS Selectors right after we've initialized
+    Backbone.Mediator.publish('web-surface:initialized')
+
   getRenderData: ->
     _.merge super(), { fullUnsafeContentHostname: serverConfig.fullUnsafeContentHostname }
 
