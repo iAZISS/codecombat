@@ -99,7 +99,9 @@ module.exports = class WebSurfaceView extends CocoView
       parsedCss.value.map (qualifiedRule) =>
         qualifiedRule.prelude.map (token) ->
           if token instanceof WhitespaceToken
-            return " "
+            return ' '
+          else if token instanceof HashToken
+            return '#' + token.value
           else
             return token.value
         .join("").trim()
