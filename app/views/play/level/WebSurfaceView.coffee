@@ -8,7 +8,7 @@ module.exports = class WebSurfaceView extends CocoView
   subscriptions:
     'tome:html-updated': 'onHTMLUpdated'
     'web-dev:extracted-css-selectors': 'onExtractedCssSelectors'
-    'spell:hover-line': 'onHoverLine'
+    'web-dev:hover-line': 'onHoverLine'
 
   initialize: (options) ->
     @goals = (goal for goal in options.goalManager?.goals ? [] when goal.html)
@@ -42,6 +42,7 @@ module.exports = class WebSurfaceView extends CocoView
     html = _.find(dom, name: 'html') ? {name: 'html', attribs: null, children: [body]}
     # TODO: pull out the actual scripts, styles, and body/elements they are doing so we can merge them with our initial structure on the other side
     { virtualDom, styles, scripts } = @extractStylesAndScripts(@dekuify html)
+    @extractCssSelectors(styles, e.html)
     messageType = if e.create or not @virtualDom then 'create' else 'update'
     @iframe.contentWindow.postMessage {type: messageType, dom: virtualDom, styles, scripts, goals: @goals}, '*'
     @virtualDom = virtualDom
@@ -89,12 +90,47 @@ module.exports = class WebSurfaceView extends CocoView
     else
       deku.element(type, {}, children)
 
+  extractCssSelectors: (dekuStyles, html) ->
+    console.log "Extracting CSS selectors!"
+    # TODO: Do something better than this hack for detecting which lines are CSS, which are HTML
+    console.log "style nodes:", _.flatten dekuStyles.children
+    dekuStyles.children.forEach (styleNode) =>
+      rawCss = styleNode.children[0].nodeValue
+      console.log {rawCss}
+      @rawCssLines ?= []
+      @rawCssLines = @rawCssLines.concat(rawCss.split("\n"))
+    # TODO: Move this hack for extracting CSS selectors
+    cssSelectors = _.flatten dekuStyles.children.map (styleNode) ->
+      rawCss = styleNode.children[0].nodeValue
+      parsedCss = parseAStylesheet(rawCss) # TODO: Don't put this in the global namespace
+      parsedCss.value.map (qualifiedRule) =>
+        qualifiedRule.prelude.map (token) ->
+          if token instanceof WhitespaceToken
+            return " "
+          else
+            return token.value
+        .join("").trim()
+    # TODO: just do this in WebSurfaceView.onHoverLine?
+    # Find all calls to $("...")
+    jQuerySelectors = (html.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
+      # Extract the argument (because capture groups don't work with /g)
+      jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
+    console.log cssSelectors.concat(jQuerySelectors)
+    Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
+    null
+
   onExtractedCssSelectors: ({ @cssSelectors }) ->
 
   onHoverLine: ({ row, line }) ->
-    hoveredCssSelector = _.find @cssSelectors, (selector) ->
-      line.indexOf(selector) > -1
-    @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
+    if _.contains(@rawCssLines, line)
+      # They're hovering over lines of CSS, not HTML
+      hoveredCssSelector = _.find @cssSelectors, (selector) ->
+        line.indexOf(selector) > -1
+      @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
+      console.log {hoveredCssSelector, @cssSelectors}
+    else
+      # They're not hovering over CSS, so don't highlight anything
+      @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: '' }, '*')
     null
 
   onIframeMessage: (event) =>

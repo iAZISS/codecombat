@@ -274,7 +274,6 @@ function tokenize(str) {
 		var num = consumeANumber();
 		if(wouldStartAnIdentifier(next(1), next(2), next(3))) {
 			var token = new DimensionToken();
-			console.log(num);
 			token.value = num.value;
 			token.repr = num.repr;
 			token.type = num.type;
@@ -938,9 +937,9 @@ function consumeADeclaration(s) {
 function consumeAComponentValue(s) {
 	s.consume();
 	if(s.token instanceof OpenCurlyToken || s.token instanceof OpenSquareToken || s.token instanceof OpenParenToken)
-		return consumeASimpleBlock();
+		return consumeASimpleBlock(s); // Edited by Phoenix
 	if(s.token instanceof FunctionToken)
-		return consumeAFunction();
+		return consumeAFunction(s); // Edited by Phoenix
 	return s.token;
 }
 
@@ -1036,6 +1035,7 @@ function parseAComponentValue(s) {
 }
 
 function parseAListOfComponentValues(s) {
+  s = normalizeInput(s); // Added by Phoenix
 	var vals = [];
 	while(true) {
 		var val = consumeAComponentValue(s);

@@ -1010,7 +1010,7 @@ module.exports = class SpellView extends CocoView
   extractCssSelectors: ->
     console.log "Extracting CSS selectors!"
     # TODO: Move this hack for extracting CSS selectors
-    rawCss = @spell.getSource().match(/<style>([\s\S]*)<\/style>/)?[1] or ''
+    rawCss = @spell.getSource().match(/<style>((?!<\/?style>).*)<\/style>/)?[1] or ''
     parsedCss = parseAStylesheet(rawCss) # TODO: Don't put this in the global namespace
     cssSelectors = parsedCss.value.map (qualifiedRule) =>
       qualifiedRule.prelude.map (token) ->
@@ -1024,6 +1024,7 @@ module.exports = class SpellView extends CocoView
     jQuerySelectors = (@spell.getSource().match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
       # Extract the argument (because capture groups don't work with /g)
       jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
+    console.log cssSelectors.concat(jQuerySelectors)
     Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
     null
 
