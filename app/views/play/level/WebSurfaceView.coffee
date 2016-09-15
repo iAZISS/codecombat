@@ -124,8 +124,9 @@ module.exports = class WebSurfaceView extends CocoView
   onHoverLine: ({ row, line }) ->
     if _.contains(@rawCssLines, line)
       # They're hovering over lines of CSS, not HTML
+      trimLine = (line.match(/\s(.*)\s*{/)?[1] or line).trim().split(/ +/).join(' ')
       hoveredCssSelector = _.find @cssSelectors, (selector) ->
-        line.indexOf(selector) > -1
+        trimLine is selector
       @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
       console.log {hoveredCssSelector, @cssSelectors}
     else
