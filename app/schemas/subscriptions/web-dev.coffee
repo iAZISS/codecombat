@@ -8,11 +8,21 @@ module.exports =
     column: { type: 'integer', description: 'Column number of the start of the code that threw the exception' }
     error: { type: 'string', description: 'The .toString of the originally thrown exception' }
 
-  'web-dev:extracted-css-selectors': c.object {},
-    cssSelectors: { type: 'array' }
+  'web-dev:extracted-css-selectors': c.object {
+      title: 'Extracted CSS Selectors'
+      description: "Publishes a list of CSS selectors from the student's code, extracted from <style> tags and jQuery calls"
+      required: ['cssSelectors']
+    },
+    cssSelectors: { type: 'array', items: { type: 'string' } }
 
-  'web-dev:hover-line': c.object {},
-    row: { type: 'integer' }
-    line: { type: 'string' }
+  'web-dev:hover-line': c.object {
+      title: 'Web-dev Hover Line',
+      description: 'Published when the user is hovering over a line of code, for the purposes of highlighting nodes based on the hovered CSS selector'
+    },
+    row: { type: 'integer', description: 'The row number of the hovered line (zero-indexed!)' }
+    line: { type: 'string', description: 'The full line of code that the user is hovering over' }
 
-  'web-surface:initialized': null
+  'web-dev:stop-hovering-line': c.object {
+      title: 'Stop hovering line'
+      description: 'Published when the user is no longer hovering over a line of code with their mouse.'
+    }

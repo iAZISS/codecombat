@@ -16,11 +16,6 @@ module.exports = class WebSurfaceView extends CocoView
     # Consider https://www.npmjs.com/package/css-select to do this on virtualDom instead of in iframe on concreteDOM
     super(options)
 
-  constructor: ->
-    super(arguments...)
-    # Make sure SpellView extracts CSS Selectors right after we've initialized
-    Backbone.Mediator.publish('web-surface:initialized')
-
   getRenderData: ->
     _.merge super(), { fullUnsafeContentHostname: serverConfig.fullUnsafeContentHostname }
 
@@ -92,12 +87,9 @@ module.exports = class WebSurfaceView extends CocoView
       deku.element(type, {}, children)
 
   extractCssSelectors: (dekuStyles, html) ->
-    console.log "Extracting CSS selectors!"
     # TODO: Do something better than this hack for detecting which lines are CSS, which are HTML
-    console.log "style nodes:", _.flatten dekuStyles.children
     dekuStyles.children.forEach (styleNode) =>
       rawCss = styleNode.children[0].nodeValue
-      console.log {rawCss}
       @rawCssLines ?= []
       @rawCssLines = @rawCssLines.concat(rawCss.split("\n"))
     # TODO: Move this hack for extracting CSS selectors
