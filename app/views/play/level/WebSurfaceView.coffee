@@ -48,7 +48,7 @@ module.exports = class WebSurfaceView extends CocoView
     return null if elem.type is 'comment'  # TODO: figure out how to make a comment in virtual dom
     elem.attribs = _.omit elem.attribs, (val, attr) -> attr.indexOf('<') > -1 # Deku chokes on `<thing <p></p>`
     unless elem.name
-      console.log("Failed to dekuify", elem)
+      console.log('Failed to dekuify', elem)
       return elem.type
     deku.element(elem.name, elem.attribs, (@dekuify(c) for c in elem.children ? []))
   
@@ -91,7 +91,7 @@ module.exports = class WebSurfaceView extends CocoView
     dekuStyles.children.forEach (styleNode) =>
       rawCss = styleNode.children[0].nodeValue
       @rawCssLines ?= []
-      @rawCssLines = @rawCssLines.concat(rawCss.split("\n"))
+      @rawCssLines = @rawCssLines.concat(rawCss.split('\n'))
     # TODO: Move this hack for extracting CSS selectors
     cssSelectors = _.flatten dekuStyles.children.map (styleNode) ->
       rawCss = styleNode.children[0].nodeValue
@@ -104,19 +104,19 @@ module.exports = class WebSurfaceView extends CocoView
             return '#' + token.value
           else
             return token.value
-        .join("").trim()
+        .join('').trim()
     # TODO: just do this in WebSurfaceView.onHoverLine?
     # Find all calls to $("...")
     jQuerySelectors = (html.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
       # Extract the argument (because capture groups don't work with /g)
       jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
-    Backbone.Mediator.publish("web-dev:extracted-css-selectors", { cssSelectors: cssSelectors.concat(jQuerySelectors) })
+    Backbone.Mediator.publish('web-dev:extracted-css-selectors', { cssSelectors: cssSelectors.concat(jQuerySelectors) })
     null
 
   onExtractedCssSelectors: ({ @cssSelectors }) ->
 
   onStopHoveringLine: ->
-    @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: '' }, '*')
+    @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: '' }, '*')
 
   onHoverLine: ({ row, line }) ->
     if _.contains(@rawCssLines, line)
@@ -124,10 +124,10 @@ module.exports = class WebSurfaceView extends CocoView
       trimLine = (line.match(/\s(.*)\s*{/)?[1] or line).trim().split(/ +/).join(' ')
       hoveredCssSelector = _.find @cssSelectors, (selector) ->
         trimLine is selector
-      @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: hoveredCssSelector }, '*')
+      @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: hoveredCssSelector }, '*')
     else
       # They're not hovering over CSS, so don't highlight anything
-      @iframe.contentWindow.postMessage({ type: "highlight-css-selector", selector: '' }, '*')
+      @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: '' }, '*')
     null
 
   onIframeMessage: (event) =>
