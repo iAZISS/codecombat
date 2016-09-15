@@ -92,6 +92,7 @@ module.exports = class WebSurfaceView extends CocoView
       rawCss = styleNode.children[0].nodeValue
       @rawCssLines ?= []
       @rawCssLines = @rawCssLines.concat(rawCss.split('\n'))
+    @rawJQueryLines = _.filter (html.split('\n').map (line) -> (line.match(/^.*\$\(\s*['"].*['"]\s*\).*$/g) or [])[0])
     # TODO: Move this hack for extracting CSS selectors
     cssSelectors = _.flatten dekuStyles.children.map (styleNode) ->
       rawCss = styleNode.children[0].nodeValue
@@ -124,10 +125,15 @@ module.exports = class WebSurfaceView extends CocoView
       trimLine = (line.match(/\s(.*)\s*{/)?[1] or line).trim().split(/ +/).join(' ')
       hoveredCssSelector = _.find @cssSelectors, (selector) ->
         trimLine is selector
-      @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: hoveredCssSelector }, '*')
+    else if _.contains(@rawJQueryLines, line)
+      # It's a jQuery call
+      trimLine = (line.match(/\$\(\s*['"](.*)['"]\s*\)/)?[1] or '').trim()
+      hoveredCssSelector = _.find @cssSelectors, (selector) ->
+        trimLine is selector
     else
-      # They're not hovering over CSS, so don't highlight anything
-      @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: '' }, '*')
+      # They're not hovering over a line with a selector, so don't highlight anything
+      hoveredCssSelector = ''
+    @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: hoveredCssSelector }, '*')
     null
 
   onIframeMessage: (event) =>
