@@ -53,8 +53,6 @@ module.exports = class WebSurfaceView extends CocoView
     else
       deku.element(type, {}, children)
 
-
-
   onStopHoveringLine: ->
     @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: '' }, '*')
 

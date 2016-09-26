@@ -8,22 +8,19 @@ module.exports =
       return elem.type
     deku.element(elem.name, elem.attribs, (@dekuify(c) for c in elem.children ? []))
 
-  unwrapDekuNodes: (dekuTree) ->
-    dekuTree.children.map (node) ->
-      @unwrapDekuNode(node)
+  undekuify: (dekuNode) ->
+    return dekuNode if _.isString(dekuNode)
+    results = _.filter _.flatten [dekuNode.nodeValue, (@undekuify(child) for child in (dekuNode.children or []))]
 
-  unwrapDekuNode: (dekuNode) ->
-    dekuNode.children[0].nodeValue
-
-  # Guarantees an `html` and `body` element so that Deku doesn't explode without them
+  # Parses user code into Deku format. Also guarantees an `html` and `body` element so that Deku doesn't explode when reading it.
   # Arguments:
   #   html — Raw HTML source code, possibly without html/body tags
-  # Returns: Parsed htmlparser2-format Dom that includes html/body tags
-  restructureParsedUserCode: (html) ->
+  # Returns: Parsed Deku-format DOM that includes html/body tags
+  parseUserHtml: (html) ->
     dom = htmlparser2.parseDOM html, {}
     bodyNode = _.find(dom, name: 'body') ? {name: 'body', attribs: null, children: dom}
     htmlNode = _.find(dom, name: 'html') ? {name: 'html', attribs: null, children: [bodyNode]}
-    htmlNode
+    @dekuify(htmlNode)
 
   # Creates a deku virtual DOM for given HTML, with the <script> and <style> tags separated out (and dekuified as well)
   # Arguments:
@@ -33,7 +30,7 @@ module.exports =
   #   scripts: A list of Deku nodes for the <script> tags
   #   styles: A list of Deku nodes for the <style> tags
   extractStylesAndScripts: (html) ->
-    dekuTree = @dekuify(@restructureParsedUserCode(html))
+    dekuTree = @parseUserHtml(html)
     recurse = (dekuTree) ->
       #base case
       if dekuTree.type is '#text'
@@ -58,16 +55,17 @@ module.exports =
     wrappedScripts = deku.element('head', {}, scripts)
     return { virtualDom, scripts: wrappedScripts, styles: wrappedStyles }
 
+  # Returns a list of CSS selectors found in CSS code and jQuery calls
   extractCssSelectors: (dekuStyles, dekuScripts) ->
     # TODO: Move this hack for extracting CSS selectors
-    cssSelectors = @extractSelectorsFromCss dekuStyles.children.map (styleNode) ->
-      rawCss = styleNode.children[0].nodeValue
+    cssSelectors = @extractSelectorsFromCss @undekuify(dekuStyles)
 
     # TODO: just do this in WebSurfaceView.onHoverLine?
     # Find all calls to $("...")
-    jQuerySelectors = @extractSelectorsFromJS(dekuScripts)
+    jQuerySelectors = @extractSelectorsFromJS @undekuify(dekuScripts)
     return cssSelectors.concat(jQuerySelectors)
 
+  # Returns a list of CSS selectors found in jQuery calls
   extractSelectorsFromCss: (styles) ->
     unless styles instanceof Array
       styles = [styles]
@@ -82,21 +80,24 @@ module.exports =
     cssSelectors
 
   # Returns a list of CSS selector strings found in jQuery calls
-  extractSelectorsFromJS: (dekuScripts) ->
-    jQuerySelectors = _.flatten dekuScripts.children.map (dekuScript) ->
-      rawScript = dekuScript.children[0].nodeValue
-      rawScript.match(/\$\(\s*['"](.*)['"]\s*\)/g) or [].map (jQueryCall) ->
+  extractSelectorsFromJS: (scripts) ->
+    jQuerySelectors = _.flatten scripts.map (script) ->
+      script.match(/\$\(\s*['"](.*)['"]\s*\)/g) or [].map (jQueryCall) ->
         # Extract the argument (because capture groups don't work with /g)
         jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
     jQuerySelectors
 
-  extractCssLines: (dekuStyles)->
+  # Converts deku style nodes into a list of lines of CSS code.
+  # Used to prefilter hovered lines for selectors.
+  extractCssLines: (dekuStyles) ->
     rawCssLines = []
     dekuStyles.children.forEach (styleNode) =>
       rawCss = styleNode.children[0].nodeValue
       rawCssLines = rawCssLines.concat(rawCss.split('\n'))
     rawCssLines
 
+  # Converts deku script nodes into a list of lines of lines of code that contain jQuery selectors
+  # Used to prefilter hovered lines for selectors.
   extractJQueryLines: (dekuScripts) ->
     _.flatten dekuScripts.children.map (dekuScript) ->
       rawScript = dekuScript.children[0].nodeValue
