@@ -96,16 +96,13 @@ module.exports = class WebSurfaceView extends CocoView
     # TODO: Move this hack for extracting CSS selectors
     cssSelectors = _.flatten dekuStyles.children.map (styleNode) ->
       rawCss = styleNode.children[0].nodeValue
-      parsedCss = parseAStylesheet(rawCss) # TODO: Don't put this in the global namespace
-      parsedCss.value.map (qualifiedRule) =>
-        qualifiedRule.prelude.map (token) ->
-          if token instanceof WhitespaceToken
-            return ' '
-          else if token instanceof HashToken
-            return '#' + token.value
-          else
-            return token.value
-        .join('').trim()
+      try
+        parsedCss = parseCss(rawCss) # TODO: Don't put this in the global namespace
+        parsedCss.stylesheet.rules.map (rule) ->
+          rule.selectors.join(', ').trim()
+      catch e
+        # TODO: Report this error, handle CSS errors in general
+        []
     # TODO: just do this in WebSurfaceView.onHoverLine?
     # Find all calls to $("...")
     jQuerySelectors = (html.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
