@@ -1,4 +1,5 @@
 module.exports =
+  # Convert htmlparser2-formatted DOM structure into Deku format
   dekuify: (elem) ->
     return elem.data if elem.type is 'text'
     return null if elem.type is 'comment'  # TODO: figure out how to make a comment in virtual dom
@@ -8,9 +9,13 @@ module.exports =
       return elem.type
     deku.element(elem.name, elem.attribs, (@dekuify(c) for c in elem.children ? []))
 
-  undekuify: (dekuNode) ->
+  # Convert Deku-formatted DOM nodes into a flat list of their raw values
+  unwrapDekuNodes: (dekuNode) ->
     return dekuNode if _.isString(dekuNode)
-    results = _.filter _.flatten [dekuNode.nodeValue, (@undekuify(child) for child in (dekuNode.children or []))]
+    if _.isArray(dekuNode)
+      return _.filter _.flatten(@unwrapDekuNodes(child) for child in dekuNode)
+    else
+      return _.filter _.flatten [dekuNode.nodeValue, (@unwrapDekuNodes(child) for child in (dekuNode.children or []))]
 
   # Parses user code into Deku format. Also guarantees an `html` and `body` element so that Deku doesn't explode when reading it.
   # Arguments:
@@ -57,18 +62,16 @@ module.exports =
 
   # Returns a list of CSS selectors found in CSS code and jQuery calls
   extractCssSelectors: (dekuStyles, dekuScripts) ->
-    # TODO: Move this hack for extracting CSS selectors
-    cssSelectors = @extractSelectorsFromCss @undekuify(dekuStyles)
-
-    # TODO: just do this in WebSurfaceView.onHoverLine?
-    # Find all calls to $("...")
-    jQuerySelectors = @extractSelectorsFromJS @undekuify(dekuScripts)
+    cssSelectors = @extractSelectorsFromCss dekuStyles
+    jQuerySelectors = @extractSelectorsFromJS dekuScripts
     return cssSelectors.concat(jQuerySelectors)
 
   # Returns a list of CSS selectors found in jQuery calls
+  # Arguments:
+  #   styles — one (or a list of) strings or Deku nodes.
   extractSelectorsFromCss: (styles) ->
-    unless styles instanceof Array
-      styles = [styles]
+    styles = @unwrapDekuNodes(styles)
+    styles = [styles] unless _.isArray(styles)
     cssSelectors = _.flatten styles.map (rawCss) ->
       try
         parsedCss = parseCss(rawCss) # TODO: Don't put this in the global namespace
@@ -80,7 +83,11 @@ module.exports =
     cssSelectors
 
   # Returns a list of CSS selector strings found in jQuery calls
+  # Arguments:
+  #   scripts — one (or a list of) strings or Deku nodes.
   extractSelectorsFromJS: (scripts) ->
+    scripts = @unwrapDekuNodes(scripts)
+    scripts = [scripts] unless _.isArray(scripts)
     jQuerySelectors = _.flatten scripts.map (script) ->
       script.match(/\$\(\s*['"](.*)['"]\s*\)/g) or [].map (jQueryCall) ->
         # Extract the argument (because capture groups don't work with /g)
