@@ -1003,9 +1003,11 @@ module.exports = class SpellView extends CocoView
 
   onAceMouseMove: (e) =>
     return if @destroyed
-    pos = e.getDocumentPosition()
-    line = @aceSession.getLine(pos.row)
-    Backbone.Mediator.publish("web-dev:hover-line", { row: pos.row, line })
+    row = e.getDocumentPosition().row
+    return if row is @lastRowHovered # Don't spam repeated messages for the same line
+    @lastRowHovered = row
+    line = @aceSession.getLine(row)
+    Backbone.Mediator.publish("web-dev:hover-line", { row: row, line })
     null
 
   onSessionWillSave: (e) ->
