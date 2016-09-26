@@ -50,8 +50,8 @@ function receiveMessage(event) {
         checkGoals(data.goals, source, origin);
         break;
     case 'highlight-css-selector':
-        $('*').css('box-shadow', '')
-        $(data.selector).css('box-shadow', 'inset 0 0 2px 2px rgba(255, 255, 0, 1.0), 0 0 2px 2px rgba(255, 255, 0, 1.0)')
+        $('*').css('box-shadow', '');
+        $(data.selector).css('box-shadow', 'inset 0 0 2px 2px rgba(255, 255, 0, 1.0), 0 0 2px 2px rgba(255, 255, 0, 1.0)');
         break;
     case 'log':
         console.log(data.text);
