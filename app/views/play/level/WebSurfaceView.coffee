@@ -33,21 +33,17 @@ module.exports = class WebSurfaceView extends CocoView
   onHTMLUpdated: (e) ->
     unless @iframeLoaded
       return @onIframeLoaded = => @onHTMLUpdated e unless @destroyed
-    dom = htmlparser2.parseDOM e.html, {}
-    body = _.find(dom, name: 'body') ? {name: 'body', attribs: null, children: dom}
-    html = _.find(dom, name: 'html') ? {name: 'html', attribs: null, children: [body]}
-    
+
     # TODO: pull out the actual scripts, styles, and body/elements they are doing so we can merge them with our initial structure on the other side
-    { virtualDom, styles, scripts } = HtmlExtractor.extractStylesAndScripts(HtmlExtractor.dekuify html)
-    @cssSelectors = HtmlExtractor.extractCssSelectors(styles, e.html)
+    { @virtualDom, styles, scripts } = HtmlExtractor.extractStylesAndScripts(e.html)
+    @cssSelectors = HtmlExtractor.extractCssSelectors(styles, scripts)
+    # TODO: Do something better than this hack for detecting which lines are CSS, which are HTML
+    @rawCssLines = HtmlExtractor.extractCssLines(styles)
+    @rawJQueryLines = HtmlExtractor.extractJQueryLines(scripts)
+
     messageType = if e.create or not @virtualDom then 'create' else 'update'
-    @iframe.contentWindow.postMessage {type: messageType, dom: virtualDom, styles, scripts, goals: @goals}, '*'
-    @virtualDom = virtualDom
+    @iframe.contentWindow.postMessage {type: messageType, dom: @virtualDom, styles, scripts, goals: @goals}, '*'
 
-
-  
-
-    
   combineNodes: (type, nodes) ->
     if _.any(nodes, (node) -> node.type isnt type)
       throw new Error("Can't combine nodes of different types. (Got #{nodes.map (n) -> n.type})")
