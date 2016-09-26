@@ -8,13 +8,6 @@ module.exports =
     column: { type: 'integer', description: 'Column number of the start of the code that threw the exception' }
     error: { type: 'string', description: 'The .toString of the originally thrown exception' }
 
-  'web-dev:extracted-css-selectors': c.object {
-      title: 'Extracted CSS Selectors'
-      description: "Publishes a list of CSS selectors from the student's code, extracted from <style> tags and jQuery calls"
-      required: ['cssSelectors']
-    },
-    cssSelectors: { type: 'array', items: { type: 'string' } }
-
   'web-dev:hover-line': c.object {
       title: 'Web-dev Hover Line',
       description: 'Published when the user is hovering over a line of code, for the purposes of highlighting nodes based on the hovered CSS selector'

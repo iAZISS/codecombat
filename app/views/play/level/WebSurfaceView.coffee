@@ -7,7 +7,6 @@ module.exports = class WebSurfaceView extends CocoView
 
   subscriptions:
     'tome:html-updated': 'onHTMLUpdated'
-    'web-dev:extracted-css-selectors': 'onExtractedCssSelectors'
     'web-dev:hover-line': 'onHoverLine'
     'web-dev:stop-hovering-line': 'onStopHoveringLine'
 
@@ -108,10 +107,8 @@ module.exports = class WebSurfaceView extends CocoView
     jQuerySelectors = (html.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
       # Extract the argument (because capture groups don't work with /g)
       jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
-    Backbone.Mediator.publish('web-dev:extracted-css-selectors', { cssSelectors: cssSelectors.concat(jQuerySelectors) })
-    null
-
-  onExtractedCssSelectors: ({ @cssSelectors }) ->
+    combinedCssSelectors = cssSelectors.concat(jQuerySelectors)
+    @cssSelectors = combinedCssSelectors
 
   onStopHoveringLine: ->
     @iframe.contentWindow.postMessage({ type: 'highlight-css-selector', selector: '' }, '*')
