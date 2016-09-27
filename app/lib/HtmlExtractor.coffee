@@ -3,7 +3,8 @@ module.exports =
   dekuify: (elem) ->
     return elem.data if elem.type is 'text'
     return null if elem.type is 'comment'  # TODO: figure out how to make a comment in virtual dom
-    elem.attribs = _.omit elem.attribs, (val, attr) -> attr.indexOf('<') > -1 # Deku chokes on `<thing <p></p>`
+    # Prevent Deku from including invalid attribute names (which DOMElement will choke on)
+    elem.attribs = _.omit elem.attribs, (val, attr) -> not attr.match(/^[^\s"'<>\\\/=]+$/)
     unless elem.name
       console.log('Failed to dekuify', elem)
       return elem.type
