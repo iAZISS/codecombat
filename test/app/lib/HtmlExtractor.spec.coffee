@@ -8,11 +8,12 @@ describe 'HtmlExtractor', ->
         color: blue;
       }
       div { something: invalid }
+      .element[with="attributes"] {}
     </style>
     <script>
-      var paragraphs = $("p")
+      var paragraphs = $(  \t"p" )
       paragraphs.toggleClass("some-class")
-      $('div').children().insertAfter($('<a>'))
+      $('div').children().insertAfter($('<a> '))
     </script>
     <div>
       Hi there!
@@ -22,12 +23,12 @@ describe 'HtmlExtractor', ->
     it 'extracts a list of all CSS selectors used in CSS code or jQuery calls', ->
       { styles, scripts } = HtmlExtractor.extractStylesAndScripts(studentHtml)
       extractedSelectors = HtmlExtractor.extractCssSelectors(styles, scripts)
-      expect(extractedSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div', 'p', 'div'])
+      expect(extractedSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div', '.element[with="attributes"]', 'p', 'div'])
 
     it 'extracts a list of all CSS selectors used in CSS code', ->
       { styles, scripts } = HtmlExtractor.extractStylesAndScripts(studentHtml)
       extractedSelectors = HtmlExtractor.extractSelectorsFromCss(styles, scripts)
-      expect(extractedSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div'])
+      expect(extractedSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div', '.element[with="attributes"]'])
 
     it 'extracts a list of all CSS selectors used in jQuery calls', ->
       { styles, scripts } = HtmlExtractor.extractStylesAndScripts(studentHtml)

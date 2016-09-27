@@ -11,11 +11,12 @@ describe 'WebSurfaceView', ->
         color: blue;
       }
       div { something: invalid }
+      .element[with="attributes"] {}
     </style>
     <script>
-      var paragraphs = $("p")
+      var paragraphs = $(  \t"p" )
       paragraphs.toggleClass("some-class")
-      $('div').children().insertAfter($('<a>'))
+      $('div').children().insertAfter($('<a> '))
     </script>
     <div>
       Hi there!
@@ -25,4 +26,4 @@ describe 'WebSurfaceView', ->
   describe 'onHTMLUpdated', ->
     it 'extracts a list of all CSS selectors used', ->
       view.onHTMLUpdated({ html: studentHtml })
-      expect(view.cssSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div', 'p', 'div'])
+      expect(view.cssSelectors).toEqual(['#some-id', '.thing1, .thing2', 'div', '.element[with="attributes"]', 'p', 'div'])
