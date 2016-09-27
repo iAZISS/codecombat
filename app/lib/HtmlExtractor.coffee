@@ -89,7 +89,7 @@ module.exports =
     scripts = @unwrapDekuNodes(scripts)
     scripts = [scripts] unless _.isArray(scripts)
     jQuerySelectors = _.flatten scripts.map (script) ->
-      script.match(/\$\(\s*['"](.*)['"]\s*\)/g) or [].map (jQueryCall) ->
+      (script.match(/\$\(\s*['"](.*)['"]\s*\)/g) or []).map (jQueryCall) ->
         # Extract the argument (because capture groups don't work with /g)
         jQueryCall.match(/\$\(\s*['"](.*)['"]\s*\)/)[1]
     jQuerySelectors
