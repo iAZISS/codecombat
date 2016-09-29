@@ -72,7 +72,11 @@ exports.config =
         ]
 
         #- Karma is a bit more tricky to get to work. For now just dump everything into one file so it doesn't need to load anything through ModuleLoader.
-        'javascripts/whole-app.js': if TRAVIS then regJoin('^app') else []
+        'javascripts/whole-app.js': if TRAVIS then [
+          regJoin('^app')
+          regJoin('^bower_components/aether/build/aether.js')
+          regJoin('^bower_components/esper.js/esper.js')
+        ] else []
 
         #- Wads. Groups of modules by folder which are loaded as a group when needed.
         'javascripts/app/lib.js': regJoin('^app/lib')
@@ -98,7 +102,8 @@ exports.config =
         ]
         'javascripts/whole-vendor.js': if TRAVIS then [
           regJoin('^vendor/scripts/(?!(Box2d|jasmine))')
-          regJoin('^bower_components/(?!aether|esper.js)')
+          regJoin('^bower_components/aether/build/aether.js')
+          regJoin('^bower_components/esper.js/esper.js')
         ] else []
 
         #- Other vendor libraries in separate bunches
