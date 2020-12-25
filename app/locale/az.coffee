@@ -1,8 +1,8 @@
 module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Azerbaijani", translation:
 
   new_home:
-#    title: "CodeCombat - Coding games to learn Python and JavaScript"
-#    meta_keywords: "CodeCombat, python, javascript, Coding Games"
+    title: "CodeCombat - Python və JavaScript-i öyrənmək üçün Kodlaşdırma oyunudur"
+    meta_keywords: "CodeCombat, python, javascript, Coding Games, Kodlaşdırma Oyunları"
 #    meta_description: "Learn typed code through a programming game. Learn Python, JavaScript, and HTML as you solve puzzles and learn to make your own coding games and websites."
 #    meta_og_url: "https://codecombat.com"
 #    become_investor: "to become an investor in CodeCombat"
@@ -96,8 +96,8 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
     classroom_edition: "Sinif  Nəşri:"
     learn_to_code: "Kodlaşdırmağı öyrən:"
     play_now: "İndi Oynamaq"
-#    im_a_parent: "I'm a Parent"
-#    im_an_educator: "I'm an Educator"
+    im_a_parent: "Mən Tələbəyəm"
+    im_an_educator: "Mən Müəlliməm"
     im_a_teacher: "Mən müəlliməm"
     im_a_student: "Mən şagirdəm/tələbəyəm"
     learn_more: "Daha çox öyrən"
@@ -212,13 +212,13 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    parent: "Parents"
 #    browser_recommendation: "For the best experience we recommend using the latest version of Chrome. Download the browser here!"
 
-#  modal:
-#    close: "Close"
-#    okay: "Okay"
-#    cancel: "Cancel"
+  modal:
+    close: "Bağla"
+    okay: "Təsdiq"
+    cancel: "Ləvg et"
 
-#  not_found:
-#    page_not_found: "Page not found"
+  not_found:
+    page_not_found: "Səhifə tapılmadı"
 
 #  diplomat_suggestion:
 #    title: "Help translate CodeCombat!" # This shows up when a player switches to a non-English language using the language selector.
@@ -445,18 +445,18 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    yes_i_have_classcode: "Yes, I have a Class Code!"
 #    enter_it_here: "Enter it here:"
 
-#  recover:
-#    recover_account_title: "Recover Account"
-#    send_password: "Send Recovery Password"
-#    recovery_sent: "Recovery email sent."
+  recover:
+    recover_account_title: "Akkauntun Bərpası"
+    send_password: "Bərpa üçün Şifrəni Göndər"
+    recovery_sent: "Bərpa üçün Email Göndər."
 
-#  items:
-#    primary: "Primary"
-#    secondary: "Secondary"
-#    armor: "Armor"
-#    accessories: "Accessories"
-#    misc: "Misc"
-#    books: "Books"
+  items:
+    primary: "Əsas"
+    secondary: "Köməkçi"
+    armor: "Zireh"
+    accessories: "Aksesuarlar"
+    misc: "Diğər"
+    books: "Kitablar"
 
 #  common:
 #    default_title: "CodeCombat - Coding games to learn Python and JavaScript"
@@ -561,22 +561,22 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    chat_with_us: "Chat with us"
 #    email_us: "Send us an email"
 
-#  units:
-#    second: "second"
-#    seconds: "seconds"
-#    sec: "sec"
-#    minute: "minute"
-#    minutes: "minutes"
-#    hour: "hour"
-#    hours: "hours"
-#    day: "day"
-#    days: "days"
-#    week: "week"
-#    weeks: "weeks"
-#    month: "month"
-#    months: "months"
-#    year: "year"
-#    years: "years"
+  units:
+    second: "saniyə"
+    seconds: "saniyə"
+    sec: "san"
+    minute: "dəqiqə"
+    minutes: "dəqiqə"
+    hour: "saat"
+    hours: "saat"
+    day: "gün"
+    days: "gün"
+    week: "həftə"
+    weeks: "həftə"
+    month: "ay"
+    months: "ay"
+    year: "il"
+    years: "il"
 
 #  play_level:
 #    back_to_map: "Back to Map"
@@ -1202,8 +1202,8 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    previous: "Previous"
 #    location_title: "We're located in downtown SF:"
 
-#  teachers:
-#    licenses_needed: "Licenses needed"
+  teachers:
+    licenses_needed: "Lisenziya tələb olunur"
 
 #  special_offer:
 #    special_offer: "Special Offer"
@@ -1399,8 +1399,8 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    beautify: "Beautify your code by standardizing its formatting."
 #    maximize_editor: "Maximize/minimize code editor."
 
-#  cinematic:
-#    click_anywhere_continue: "click anywhere to continue"
+  cinematic:
+    click_anywhere_continue: "davam etmək üçün hər-hansı bir yerə tıkla"
 
 #  community:
 #    main_title: "CodeCombat Community"
@@ -2097,8 +2097,8 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    copy_url: "Copy URL"
 #    share_with_teacher_email: "Send to your teacher"
 
-#  game_dev:
-#    creator: "Creator"
+  game_dev:
+    creator: "Yaradıcı"
 
 #  web_dev:
 #    image_gallery_title: "Image Gallery"
@@ -2779,21 +2779,21 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    cookies_allow: "Allow cookies"
 
 #  calendar:
-#    year: "Year"
-#    day: "Day"
-#    month: "Month"
-#    january: "January"
-#    february: "February"
-#    march: "March"
-#    april: "April"
+#    year: "İl"
+#    day: "Gün"
+#    month: "Ay"
+#    january: "Yanvar"
+#    february: "Fevral"
+#    march: "Mart"
+#    april: "Aprel"
 #    may: "May"
-#    june: "June"
-#    july: "July"
-#    august: "August"
-#    september: "September"
-#    october: "October"
-#    november: "November"
-#    december: "December"
+#    june: "İyun"
+#    july: "İyul"
+#    august: "Avqust"
+#    september: "Sentyabr"
+#    october: "Oktyabr"
+#    november: "Noyabr"
+#    december: "Dekabr"
 
 #  code_play_create_account_modal:
 #    title: "You did it!" # This section is only needed in US, UK, Mexico, India, and Germany
@@ -3003,7 +3003,7 @@ module.exports = nativeDescription: "azərbaycan dili", englishDescription: "Aze
 #    four_private_classes_price: "$219/mo"
 #    eight_private_classes_price: "$399/mo"
 #    private_classes_detail: "4 or 8 Private Sessions / Mo."
-#    private_classes_price: "$219/mo or $399/mo"
+#    private_classes_price: "$219/ay və $399/ay"
 #    private_classes_detail_1: "1:1 student to instructor ratio"
 #    private_classes_detail_2: "60 minute classes"
 #    private_classes_detail_3: "Flexible schedule tailored to your needs"
